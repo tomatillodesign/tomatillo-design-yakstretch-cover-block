@@ -55,36 +55,6 @@ add_action( 'init', function() {
 
 
 
-// add_action( 'wp_enqueue_scripts', 'yakstretch_enqueue_assets', 20 );
-
-// function yakstretch_enqueue_assets() {
-// 	$deps = [];
-
-// 	if ( wp_script_is( 'tomatillo-avif-swap', 'registered' ) ) {
-// 		$deps[] = 'tomatillo-avif-swap';
-// 	}
-
-// 	if ( has_block( 'yak/yakstretch-cover' ) ) {
-// 		wp_enqueue_script(
-// 			'yakstretch-script',
-// 			plugin_dir_url( __FILE__ ) . 'blocks/yakstretch/yakstretch.js',
-// 			$deps,
-// 			'1.0.0',
-// 			true
-// 		);
-
-// 		wp_enqueue_style(
-// 			'yakstretch-style',
-// 			plugin_dir_url( __FILE__ ) . 'blocks/yakstretch/yakstretch_cover.css',
-// 			[],
-// 			'1.0.0'
-// 		);
-// 	}
-// }
-
-
-
-
 
 wp_register_script(
 	'yakstretch-script',
