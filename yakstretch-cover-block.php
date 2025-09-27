@@ -315,3 +315,106 @@ function yakstretch_hex_to_rgba($hex, $opacity = 1) {
 	}
 	return "rgba($r, $g, $b, $opacity)";
 }
+
+/**
+ * Get optimized image URL (AVIF/WebP) for Yakstretch
+ * Integrates with Tomatillo Design AVIF Everywhere plugin
+ * 
+ * @param int $attachment_id WordPress attachment ID
+ * @return string|false Optimized image URL or false if not available
+ */
+function yakstretch_get_optimized_image_url($attachment_id) {
+	// Check if AVIF Everywhere plugin is active
+	if (!function_exists('get_post_meta')) {
+		return false;
+	}
+	
+	// Try AVIF first (preferred format)
+	$avif_url = get_post_meta($attachment_id, '_avif_url', true);
+	if ($avif_url) {
+		// Convert URL to file path and check if file exists
+		$upload_dir = wp_get_upload_dir();
+		$file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $avif_url);
+		if (file_exists($file_path)) {
+			return esc_url_raw($avif_url);
+		}
+	}
+	
+	// Fallback to WebP
+	$webp_url = get_post_meta($attachment_id, '_webp_url', true);
+	if ($webp_url) {
+		// Convert URL to file path and check if file exists
+		$upload_dir = wp_get_upload_dir();
+		$file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $webp_url);
+		if (file_exists($file_path)) {
+			return esc_url_raw($webp_url);
+		}
+	}
+	
+	// No optimized version available
+	return false;
+}
+
+/**
+ * Test shortcode to check AVIF integration
+ * Usage: [yakstretch_test_avif]
+ */
+add_shortcode('yakstretch_test_avif', function() {
+	if (!current_user_can('manage_options')) {
+		return 'Admin access required.';
+	}
+	
+	// Get a sample image from media library
+	$images = get_posts([
+		'post_type' => 'attachment',
+		'post_mime_type' => 'image',
+		'posts_per_page' => 3,
+		'post_status' => 'inherit'
+	]);
+	
+	if (empty($images)) {
+		return 'No images found in media library.';
+	}
+	
+	$output = '<h3>Yakstretch AVIF Integration Test</h3><table border="1" cellpadding="10">';
+	$output .= '<tr><th>Image ID</th><th>Original</th><th>AVIF</th><th>WebP</th><th>File Sizes</th></tr>';
+	
+	foreach ($images as $image) {
+		$id = $image->ID;
+		$original_url = wp_get_attachment_url($id);
+		$avif_url = get_post_meta($id, '_avif_url', true);
+		$webp_url = get_post_meta($id, '_webp_url', true);
+		
+		// Get file sizes
+		$upload_dir = wp_get_upload_dir();
+		$original_size = file_exists(str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $original_url)) 
+			? round(filesize(str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $original_url)) / 1024, 1) . ' KB'
+			: 'N/A';
+			
+		$avif_size = $avif_url && file_exists(str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $avif_url))
+			? round(filesize(str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $avif_url)) / 1024, 1) . ' KB'
+			: 'N/A';
+			
+		$webp_size = $webp_url && file_exists(str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $webp_url))
+			? round(filesize(str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $webp_url)) / 1024, 1) . ' KB'
+			: 'N/A';
+		
+		$output .= '<tr>';
+		$output .= '<td>' . $id . '</td>';
+		$output .= '<td>' . basename($original_url) . '</td>';
+		$output .= '<td>' . ($avif_url ? basename($avif_url) : 'Not available') . '</td>';
+		$output .= '<td>' . ($webp_url ? basename($webp_url) : 'Not available') . '</td>';
+		$output .= '<td>Original: ' . $original_size . '<br>AVIF: ' . $avif_size . '<br>WebP: ' . $webp_size . '</td>';
+		$output .= '</tr>';
+	}
+	
+	$output .= '</table>';
+	
+	// Test the helper function
+	$test_id = $images[0]->ID;
+	$optimized_url = yakstretch_get_optimized_image_url($test_id);
+	$output .= '<h4>Helper Function Test:</h4>';
+	$output .= '<p>Image ID ' . $test_id . ' optimized URL: <code>' . ($optimized_url ?: 'No optimized version') . '</code></p>';
+	
+	return $output;
+});

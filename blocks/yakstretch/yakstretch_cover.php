@@ -23,7 +23,7 @@ $wrapper_classes = implode(' ', array_filter([
 // Fields
 $images               = get_field('gallery');
 $has_images           = ! empty($images);
-$first_image_url      = $has_images ? esc_url($images[0]['url']) : '';
+$first_image_url      = $has_images ? (yakstretch_get_optimized_image_url($images[0]['ID']) ?: esc_url($images[0]['url'])) : '';
 $content_position     = get_field('content_placement') ?: 'bottom center';
 $overlay_style        = get_field('overlay_style') ?: 'flat';
 $overlay_hex          = get_field('overlay_color') ?: '#000000';
@@ -128,8 +128,36 @@ if ( $is_preview ) {
 
 	<?php
 	// Cache image URLs to avoid redundant processing
-	$image_urls = is_array($images) ? wp_list_pluck($images, 'url') : [];
-	$image_urls = array_map('esc_url_raw', $image_urls);
+	$image_urls = [];
+	$debug_info = []; // For debugging AVIF usage
+	
+	if (is_array($images)) {
+		foreach ($images as $image) {
+			// Try to get AVIF/WebP optimized URL first
+			$optimized_url = yakstretch_get_optimized_image_url($image['ID']);
+			$final_url = $optimized_url ?: esc_url_raw($image['url']);
+			$image_urls[] = $final_url;
+			
+			// Debug info
+			if (defined('WP_DEBUG') && WP_DEBUG) {
+				$debug_info[] = [
+					'id' => $image['ID'],
+					'original' => basename($image['url']),
+					'optimized' => $optimized_url ? basename($optimized_url) : 'none',
+					'format' => $optimized_url ? pathinfo($optimized_url, PATHINFO_EXTENSION) : 'original'
+				];
+			}
+		}
+	}
+	
+	// Show debug info if WP_DEBUG is enabled
+	if (defined('WP_DEBUG') && WP_DEBUG && !empty($debug_info)) {
+		echo '<!-- Yakstretch AVIF Debug: ';
+		foreach ($debug_info as $info) {
+			echo "ID {$info['id']}: {$info['original']} → {$info['optimized']} ({$info['format']}) | ";
+		}
+		echo '-->';
+	}
 	?>
 
 	<div class="yakstretch-image-wrapper">

@@ -14,6 +14,10 @@ A custom ACF-powered WordPress block that rotates background images with configu
 - 🧱 Full `InnerBlocks` support (add any block content)
 - 🖼 Editor preview with real-time ACF field sync
 - 🧩 Native block alignment support (`full`, `wide`, etc.)
+- ⏯️ **NEW:** WCAG accessible play/pause button
+- 🖼️ **NEW:** AVIF/WebP image optimization integration
+- 🎯 **NEW:** True WYSIWYG editor experience
+- 🔧 **NEW:** Enhanced security and performance
 
 ---
 
@@ -46,8 +50,10 @@ The block exposes the following ACF fields in the sidebar:
 - **Fade Duration** (ms for crossfade)
 - **Overlay Style** (`flat`, `gradient`)
 - **Overlay Color** (supports alpha)
+- **Overlay Opacity** (0-100%)
 - **Min Height (Desktop)** (e.g. `500px` or `100vh`)
 - **Min Height (Mobile)** (e.g. `300px`)
+- **Show Play/Pause Button** (true/false) - *NEW in v1.1*
 
 ---
 
@@ -57,6 +63,41 @@ The block exposes the following ACF fields in the sidebar:
 - JavaScript uses fade logic and image preloading to ensure smooth transitions
 - The first image loads instantly (no fade) for performance and accessibility
 - Editor-side logic handles background rendering via MutationObserver to support live ACF field updates
+- **NEW:** Integrates with Tomatillo Design AVIF Everywhere plugin for optimized image delivery
+- **NEW:** WCAG compliant play/pause controls with motion preference support
+- **NEW:** Enhanced security with proper input sanitization and output escaping
+- **NEW:** Improved performance with image caching and timer management
+
+---
+
+## Version 1.1 Updates
+
+### 🎯 **Major Improvements**
+- **AVIF/WebP Integration**: Automatic optimization with Tomatillo Design AVIF Everywhere plugin
+- **Play/Pause Button**: WCAG accessible controls with motion preference support
+- **True WYSIWYG**: Editor now shows actual image rotation and gradient effects
+- **Enhanced Security**: Comprehensive input sanitization and XSS prevention
+- **Performance Boost**: Image caching, timer management, and memory leak prevention
+
+### 🔧 **Technical Enhancements**
+- **Image Optimization**: Uses AVIF → WebP → Original fallback chain
+- **Accessibility**: Screen reader support, keyboard navigation, focus management
+- **Editor Experience**: Real-time preview with proper gradient rendering
+- **Code Quality**: Improved error handling, debounced updates, proper cleanup
+
+### 🧪 **Testing & Debugging**
+- **Debug Mode**: HTML comments show image format usage when WP_DEBUG is enabled
+- **Test Shortcode**: `[yakstretch_test_avif]` for integration verification
+- **Performance Monitoring**: Built-in file size comparison and optimization tracking
+
+---
+
+## Compatibility
+
+- **WordPress**: 6.0+
+- **PHP**: 7.4+
+- **ACF Pro**: Required for block registration
+- **AVIF Plugin**: Optional but recommended for performance (Tomatillo Design AVIF Everywhere)
 
 ---
 

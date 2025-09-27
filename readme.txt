@@ -1,10 +1,10 @@
 === YakStretch Cover Block ===
 Contributors: tomatillodesign  
-Tags: background, cover block, acf, block editor, image rotator, overlay, gradient, gutenberg  
+Tags: background, cover block, acf, block editor, image rotator, overlay, gradient, gutenberg, avif, accessibility  
 Requires at least: 6.0  
 Tested up to: 6.5  
 Requires PHP: 7.4  
-Stable tag: 1.0.0  
+Stable tag: 1.1  
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -23,6 +23,9 @@ Built for performance and flexibility, it includes:
 - Adjustable min-height (desktop and mobile)
 - Full editor preview with live field sync
 - Theme-aware CSS layering and accessibility-conscious design
+- **NEW:** WCAG accessible play/pause button
+- **NEW:** AVIF/WebP image optimization integration
+- **NEW:** Enhanced security and performance
 
 This block is ideal for hero sections, promotional covers, or immersive full-bleed content.
 
@@ -35,6 +38,10 @@ This block is ideal for hero sections, promotional covers, or immersive full-ble
 * Min-height settings for desktop and mobile
 * Editor preview with real-time ACF updates
 * Block alignment support (full, wide, etc.)
+* **NEW:** WCAG accessible play/pause button
+* **NEW:** AVIF/WebP image optimization (50-80% smaller files)
+* **NEW:** True WYSIWYG editor experience
+* **NEW:** Enhanced security and performance
 
 == Installation ==
 
@@ -64,6 +71,17 @@ No — this block is image-focused. Use the default WP Cover block for videos.
 
 == Changelog ==
 
+= 1.1 =
+* **NEW:** WCAG accessible play/pause button with motion preference support
+* **NEW:** AVIF/WebP image optimization integration (Tomatillo Design AVIF Everywhere)
+* **NEW:** True WYSIWYG editor experience with live image rotation
+* **NEW:** Enhanced security with comprehensive input sanitization
+* **NEW:** Performance improvements with image caching and timer management
+* **NEW:** Debug mode and testing tools for AVIF integration verification
+* **IMPROVED:** Editor gradient rendering now works properly
+* **IMPROVED:** Better error handling and memory leak prevention
+* **IMPROVED:** Enhanced accessibility with screen reader support
+
 = 1.0.0 =
 * Initial public release
 * ACF field integration
@@ -73,6 +91,9 @@ No — this block is image-focused. Use the default WP Cover block for videos.
 * Editor preview with mutation-aware refresh
 
 == Upgrade Notice ==
+
+= 1.1 =
+Major update with AVIF optimization, accessibility improvements, and enhanced editor experience. Recommended for all users.
 
 = 1.0.0 =
 First release — add rotating cover blocks to your Gutenberg layouts.
