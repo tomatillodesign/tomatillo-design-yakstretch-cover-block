@@ -4,7 +4,7 @@ Plugin Name: Tomatillo Design ~ Yakstretch Cover Block
 Description: Custom block for displaying content on top of a rotating slideshow. Great for "hero" sections.
 Plugin URI: https://github.com/tomatillodesign/yak-card-deck
 Author: Tomatillo Design
-Version: 1.0.1
+Version: 1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -60,7 +60,7 @@ wp_register_script(
 	'yakstretch-script',
 	plugin_dir_url( __FILE__ ) . 'blocks/yakstretch/yakstretch.js',
 	wp_script_is( 'tomatillo-avif-swap', 'registered' ) ? [ 'tomatillo-avif-swap' ] : [],
-	'1.0.0',
+	'1.1',
 	true
 );
 add_action( 'enqueue_block_assets', function () {
@@ -90,7 +90,7 @@ add_action( 'enqueue_block_editor_assets', function() {
 		'yakstretch-editor-script',
 		plugin_dir_url( __FILE__ ) . 'blocks/yakstretch/editor.js',
 		[],
-		'1.0.0',
+		'1.1',
 		true
 	);
 });
@@ -277,6 +277,15 @@ add_action( 'acf/init', function() {
 				],
 				'default_value' => '300px',
 			],
+			[
+				'key' => 'field_yakstretch_play_pause',
+				'label' => 'Show Play/Pause Button',
+				'name' => 'show_play_pause',
+				'type' => 'true_false',
+				'ui' => 1,
+				'default_value' => 0,
+				'instructions' => 'Display an accessible play/pause button for users to control image rotation. Respects "prefers-reduced-motion" setting.',
+			],
 
 		],
 		'location' => [
@@ -293,7 +302,7 @@ add_action( 'acf/init', function() {
 
 
 
-function yakstretch_hex_to_rgba_9273614($hex, $opacity = 1) {
+function yakstretch_hex_to_rgba($hex, $opacity = 1) {
 	$hex = str_replace('#', '', $hex);
 	if (strlen($hex) === 3) {
 		$r = hexdec($hex[0] . $hex[0]);

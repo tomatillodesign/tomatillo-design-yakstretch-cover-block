@@ -31,6 +31,7 @@ $overlay_opacity_raw  = get_field('overlay_opacity') ?: 50;
 $overlay_opacity      = $overlay_opacity_raw / 100;
 $min_height_desktop   = get_field('min_height_desktop') ?: '500px';
 $min_height_mobile    = get_field('min_height_mobile') ?: '300px';
+$show_play_pause      = get_field('show_play_pause') ?: false;
 
 $image_padding_left = (float) get_field('image_padding_left') ?: 0;
 $image_padding_left_unit = $image_padding_left . '%';
@@ -62,7 +63,7 @@ if ( $overlay_style === 'gradient' ) {
 	}
 }
 
-$overlay_rgba = yakstretch_hex_to_rgba_9273614($overlay_hex, $overlay_opacity);
+$overlay_rgba = yakstretch_hex_to_rgba($overlay_hex, $overlay_opacity);
 
 // Editor-only style attribute
 $dynamic_preview_style = '';
@@ -95,7 +96,7 @@ if ( $is_preview ) {
 			z-index: -1;
 		}
 		{$selector} .yakstretch-image-wrapper {
-			background-image: url('{$first_image_url}');
+			background-image: url('<?php echo esc_url($first_image_url); ?>');
 			background-size: cover;
 			background-position: center;
 			background-repeat: no-repeat;
@@ -122,18 +123,13 @@ if ( $is_preview ) {
 <div id="<?php echo esc_attr($block_id); ?>"
      class="<?php echo esc_attr($wrapper_classes); ?>"
      data-yakstretch="1"
-     data-has-gallery="<?php echo $has_images ? '1' : '0'; ?>"
+     data-has-gallery="<?php echo esc_attr($has_images ? '1' : '0'); ?>"
 	 >
 
 	<?php
-	$image_urls = [];
-	if ( is_array($images) ) {
-		foreach ( $images as $img ) {
-			if ( is_array($img) && isset($img['url']) ) {
-				$image_urls[] = esc_url_raw($img['url']);
-			}
-		}
-	}
+	// Cache image URLs to avoid redundant processing
+	$image_urls = is_array($images) ? wp_list_pluck($images, 'url') : [];
+	$image_urls = array_map('esc_url_raw', $image_urls);
 	?>
 
 	<div class="yakstretch-image-wrapper">
@@ -145,7 +141,7 @@ if ( $is_preview ) {
 
 		<div class="yakstretch-image-rotator"
 			style="width: <?php echo esc_attr($image_width_unit); ?>; right: 0;"
-			data-images='<?php echo wp_json_encode(wp_list_pluck($images, 'url')); ?>'
+			data-images='<?php echo esc_attr(wp_json_encode($image_urls)); ?>'
 			data-delay='<?php echo esc_attr(get_field('delay') ?: 6000); ?>'
 			data-fade='<?php echo esc_attr(get_field('fade') ?: 1000); ?>'
 			data-randomize='<?php echo get_field('randomize') ? '1' : '0'; ?>'>
@@ -171,6 +167,18 @@ if ( $is_preview ) {
 		<?php endif; ?>
 		<InnerBlocks />
 	</div>
+
+	<?php if ( $show_play_pause && $has_images ) : ?>
+		<button 
+			type="button" 
+			class="yakstretch-play-pause-btn" 
+			aria-label="Pause image rotation"
+			title="Pause image rotation"
+			data-yakstretch-pause="true">
+			<span class="yakstretch-btn-icon" aria-hidden="true"></span>
+			<span class="yakstretch-btn-text">Pause</span>
+		</button>
+	<?php endif; ?>
 
 	<style>
 		/* Scoped min-height styles */

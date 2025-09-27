@@ -153,5 +153,107 @@
         margin-top: 0;
     }
 
+    /* Play/Pause Button */
+    .yakstretch-play-pause-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.7);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+        outline: none;
+    }
+
+    /* Alternative positioning options - uncomment to use */
+    /* Bottom-right positioning */
+    /*
+    .yakstretch-play-pause-btn {
+        top: auto;
+        bottom: 1rem;
+        right: 1rem;
+    }
+    */
+
+    /* Bottom-center positioning */
+    /*
+    .yakstretch-play-pause-btn {
+        top: auto;
+        bottom: 1rem;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+    */
+
+    /* Center-right positioning */
+    /*
+    .yakstretch-play-pause-btn {
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+    }
+    */
+
+    .yakstretch-play-pause-btn:hover {
+        background: rgba(0, 0, 0, 0.9);
+        border-color: white;
+        transform: scale(1.1);
+    }
+
+    .yakstretch-play-pause-btn:focus {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+    }
+
+    .yakstretch-play-pause-btn:active {
+        transform: scale(0.95);
+    }
+
+    .yakstretch-btn-icon {
+        display: block;
+    }
+
+    .yakstretch-btn-icon::before {
+        content: "";
+        display: block;
+    }
+
+    .yakstretch-btn-text {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    /* Button states */
+    .yakstretch-play-pause-btn[data-yakstretch-pause="true"] .yakstretch-btn-icon::before {
+        content: "⏸";
+        font-size: 1.1em;
+    }
+
+    .yakstretch-play-pause-btn[data-yakstretch-pause="false"] .yakstretch-btn-icon::before {
+        content: "▶";
+        font-size: 0.9em;
+        margin-left: 0.1em; /* Slight adjustment to center the triangle */
+    }
+
+    /* Hide button when motion is reduced */
+    @media (prefers-reduced-motion: reduce) {
+        .yakstretch-play-pause-btn {
+            display: none;
+        }
+    }
+
 
 }

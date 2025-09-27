@@ -56,36 +56,96 @@ function yakstretchInit(container) {
 	current.style.backgroundImage = `url("${queue[0]}")`;
 	current.style.opacity = 1;
 
+	// Image preload cache to prevent memory leaks
+	const preloadCache = new Map();
+	let rotationTimers = [];
+	let isPaused = false;
+	
 	const rotate = () => {
+		if (isPaused) return;
+		
 		index = (index + 1) % queue.length;
 		const nextUrl = queue[index];
 
-		const preload = new Image();
-		preload.src = nextUrl;
-		preload.onload = () => {
+		// Check if image is already cached
+		if (preloadCache.has(nextUrl)) {
 			next.style.backgroundImage = `url("${nextUrl}")`;
 			next.style.opacity = 1;
 			current.style.opacity = 0;
 			[current, next] = [next, current];
-			setTimeout(rotate, delay);
+			const timer = setTimeout(rotate, delay);
+			rotationTimers.push(timer);
+			return;
+		}
+
+		const preload = new Image();
+		preload.src = nextUrl;
+		preload.onload = () => {
+			// Cache the loaded image
+			preloadCache.set(nextUrl, true);
+			next.style.backgroundImage = `url("${nextUrl}")`;
+			next.style.opacity = 1;
+			current.style.opacity = 0;
+			[current, next] = [next, current];
+			const timer = setTimeout(rotate, delay);
+			rotationTimers.push(timer);
+		};
+		preload.onerror = () => {
+			// Handle failed image loads gracefully
+			const timer = setTimeout(rotate, delay);
+			rotationTimers.push(timer);
 		};
 	};
 
-	setTimeout(() => {
+	const initialTimer = setTimeout(() => {
 		if (queue.length > 1) rotate();
 	}, delay);
+	rotationTimers.push(initialTimer);
+
+	// Initialize play/pause button
+	initPlayPauseButton(container, rotator, rotationTimers, () => isPaused, (value) => { isPaused = value; }, rotate, delay, queue);
+}
+
+function initPlayPauseButton(container, rotator, rotationTimers, getIsPaused, setIsPaused, rotate, delay, queue) {
+	const playPauseBtn = container.querySelector('.yakstretch-play-pause-btn');
+	if (!playPauseBtn) return;
+
+	playPauseBtn.addEventListener('click', () => {
+		const currentPaused = getIsPaused();
+		setIsPaused(!currentPaused);
+		
+		if (!currentPaused) {
+			// Pausing rotation - clear all timers
+			rotationTimers.forEach(timer => clearTimeout(timer));
+			rotationTimers.length = 0;
+			playPauseBtn.setAttribute('data-yakstretch-pause', 'false');
+			playPauseBtn.setAttribute('aria-label', 'Resume image rotation');
+			playPauseBtn.setAttribute('title', 'Resume image rotation');
+			playPauseBtn.querySelector('.yakstretch-btn-text').textContent = 'Resume';
+		} else {
+			// Resuming rotation
+			playPauseBtn.setAttribute('data-yakstretch-pause', 'true');
+			playPauseBtn.setAttribute('aria-label', 'Pause image rotation');
+			playPauseBtn.setAttribute('title', 'Pause image rotation');
+			playPauseBtn.querySelector('.yakstretch-btn-text').textContent = 'Pause';
+			
+			// Restart rotation
+			const timer = setTimeout(() => {
+				if (!getIsPaused() && queue.length > 1) rotate();
+			}, delay);
+			rotationTimers.push(timer);
+		}
+	});
 }
 
 
 // YakStretch waits for AVIF to allow/init, or runs standalone
 if (window.tomatilloAvifYakDelay) {
 	window.addEventListener('tomatilloAvifReady', () => {
-		console.log('[YAKSTRETCH] Starting init. First rotator image:', document.querySelector('.yakstretch-image-rotator')?.dataset.images);
 		document.querySelectorAll('[data-yakstretch="1"]').forEach(yakstretchInit);
 	}, { once: true });
 } else {
 	document.addEventListener('DOMContentLoaded', () => {
-		console.log('[YAKSTRETCH] Starting init. First rotator image:', document.querySelector('.yakstretch-image-rotator')?.dataset.images);
 		document.querySelectorAll('[data-yakstretch="1"]').forEach(yakstretchInit);
 	});
 }
