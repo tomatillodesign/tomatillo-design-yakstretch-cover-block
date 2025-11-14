@@ -21,7 +21,6 @@ $wrapper_classes = implode(' ', array_filter([
 ]));
 
 // Fields
-<<<<<<< HEAD
 // CRITICAL: For ACF Blocks, data is stored in $block['data'], not post meta
 // Read directly from block data FIRST, then try get_field() as fallback
 $block_data = $block['data'] ?? [];
