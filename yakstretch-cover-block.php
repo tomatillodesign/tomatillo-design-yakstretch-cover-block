@@ -4,7 +4,7 @@ Plugin Name: Tomatillo Design ~ Yakstretch Cover Block
 Description: Custom block for displaying content on top of a rotating slideshow. Great for "hero" sections.
 Plugin URI: https://github.com/tomatillodesign/yak-card-deck
 Author: Tomatillo Design
-Version: 1.1
+Version: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
