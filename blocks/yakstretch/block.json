@@ -1,0 +1,21 @@
+{
+    "name": "yak/yakstretch-cover",
+    "title": "YakStretch Cover",
+    "description": "Rotating background image block with overlays and content placement.",
+    "category": "layout",
+    "icon": "format-image",
+    "supports": {
+      "align": true,
+      "mode": true,
+      "jsx": true
+    },
+    "acf": {
+      "mode": "preview",
+      "renderTemplate": "yakstretch_cover.php"
+    },
+    "editorScript": "yakstretch-editor-script",
+    "script": "yakstretch-script",
+    "style": "yakstretch-style",
+    "editorStyle": "yakstretch-editor-style"
+  }
+  

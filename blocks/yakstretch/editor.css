@@ -1,0 +1,246 @@
+@layer yak-editor {
+
+	/* Remove Gutenberg/ACF background interference */
+	.acf-block-preview,
+	.acf-block-body,
+	.wp-block-yak-yakstretch-cover {
+		background: transparent !important;
+	}
+
+	.wp-block[data-type="yak/yakstretch-cover"] {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		overflow: hidden;
+		min-height: 300px;
+		padding: 2rem;
+		color: #fff;
+		border: 1px dashed rgba(0, 0, 0, 0.1);
+		background: none !important;
+	}
+
+	/* NEW: internal background layer added via editor.js */
+	.yakstretch-editor-bg {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		background-repeat: no-repeat;
+		background-size: cover;
+		background-position: center;
+		pointer-events: none;
+		opacity: 1;
+		transition: opacity 0.3s ease;
+	}
+	
+	/* Rotation indicator for editor */
+	.yakstretch-editor-bg::after {
+		content: '';
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		width: 8px;
+		height: 8px;
+		background: rgba(255, 255, 255, 0.7);
+		border-radius: 50%;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+	
+	/* Show indicator when rotating */
+	.yakstretch-editor-bg.rotating::after {
+		opacity: 1;
+		animation: pulse 2s infinite;
+	}
+	
+	@keyframes pulse {
+		0%, 100% { opacity: 0.7; }
+		50% { opacity: 1; }
+	}
+
+	/* Yakstretch overlay div should remain behind content */
+	.wp-block[data-type="yak/yakstretch-cover"] .yakstretch-overlay {
+		z-index: 1;
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+
+	/* Yakstretch content */
+	.wp-block[data-type="yak/yakstretch-cover"] .yakstretch-content {
+		position: relative;
+		z-index: 2;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		padding: 1rem;
+		min-height: inherit;
+	}
+	
+
+	/* Placeholder message if gallery is empty */
+	.wp-block[data-type="yak/yakstretch-cover"][data-has-gallery="0"] .yakstretch-content::before {
+		content: "Add images to the Gallery field in the block sidebar.";
+		color: #666;
+		font-size: 0.875rem;
+		padding: 1rem;
+	}
+
+	/* Force overlay to correct z-index in editor */
+	.block-editor-block-list__layout .yakstretch-overlay {
+		z-index: 1 !important;
+	}
+
+	/* Default gray background in editor if no images */
+	.editor-styles-wrapper .yakstretch-cover-block[data-has-gallery="0"] {
+		background-color: #555 !important;
+		color: white;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Remove dashed border if gallery is populated */
+	.wp-block[data-type="yak/yakstretch-cover"][data-has-gallery="1"] {
+		border: none;
+	}
+
+	/* Gradient overlay styles for editor */
+	.yakstretch-overlay-flat {
+		background-color: var(--yak-overlay-color);
+	}
+	
+	.yakstretch-gradient-top-to-bottom {
+		background: linear-gradient(
+			to bottom,
+			var(--yak-overlay-color) 0%,
+			transparent 85%,
+			transparent 100%
+		);
+	}
+	
+	.yakstretch-gradient-bottom-to-top {
+		background: linear-gradient(
+			to top,
+			var(--yak-overlay-color) 0%,
+			transparent 85%,
+			transparent 100%
+		);
+	}
+	
+	.yakstretch-gradient-left-to-right {
+		background: linear-gradient(
+			to right,
+			var(--yak-overlay-color) 0%,
+			transparent 85%,
+			transparent 100%
+		);
+	}
+	
+	.yakstretch-gradient-right-to-left {
+		background: linear-gradient(
+			to left,
+			var(--yak-overlay-color) 0%,
+			transparent 85%,
+			transparent 100%
+		);
+	}
+	
+	.yakstretch-gradient-center-radial {
+		background: radial-gradient(
+			circle at center,
+			var(--yak-overlay-color) 0%,
+			transparent 85%,
+			transparent 100%
+		);
+	}
+	
+	.yakstretch-gradient-default {
+		background: linear-gradient(
+			to bottom,
+			var(--yak-overlay-color) 0%,
+			transparent 85%,
+			transparent 100%
+		);
+	}
+
+	/* Editor support for content placement */
+	.yakstretch-content-top-left { align-items: flex-start; justify-content: flex-start; text-align: left; }
+	.yakstretch-content-top-center { align-items: center; justify-content: flex-start; text-align: center; }
+	.yakstretch-content-top-right { align-items: flex-end; justify-content: flex-start; text-align: right; }
+
+	.yakstretch-content-center-left { align-items: flex-start; justify-content: center; text-align: left; }
+	.yakstretch-content-center-center { align-items: center; justify-content: center; text-align: center; }
+	.yakstretch-content-center-right { align-items: flex-end; justify-content: center; text-align: right; }
+
+	.yakstretch-content-bottom-left { align-items: flex-start; justify-content: flex-end; text-align: left; }
+	.yakstretch-content-bottom-center { align-items: center; justify-content: flex-end; text-align: center; }
+	.yakstretch-content-bottom-right { align-items: flex-end; justify-content: flex-end; text-align: right; }
+
+	/* Play/Pause Button in Editor */
+	.yakstretch-play-pause-btn {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		z-index: 10;
+		background: rgba(0, 0, 0, 0.7);
+		border: 2px solid rgba(255, 255, 255, 0.8);
+		border-radius: 50%;
+		width: 3rem;
+		height: 3rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		color: white;
+		font-size: 1.2rem;
+		font-weight: bold;
+		outline: none;
+	}
+
+	.yakstretch-play-pause-btn:hover {
+		background: rgba(0, 0, 0, 0.9);
+		border-color: white;
+		transform: scale(1.1);
+	}
+
+	.yakstretch-play-pause-btn:focus {
+		box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+	}
+
+	.yakstretch-btn-icon {
+		display: block;
+	}
+
+	.yakstretch-btn-text {
+		position: absolute;
+		left: -9999px;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+	}
+
+	/* Button states */
+	.yakstretch-play-pause-btn[data-yakstretch-pause="true"] .yakstretch-btn-icon::before {
+		content: "⏸";
+		font-size: 1.1em;
+	}
+
+	.yakstretch-play-pause-btn[data-yakstretch-pause="false"] .yakstretch-btn-icon::before {
+		content: "▶";
+		font-size: 0.9em;
+		margin-left: 0.1em; /* Slight adjustment to center the triangle */
+	}
+
+	/* Hide button when motion is reduced */
+	@media (prefers-reduced-motion: reduce) {
+		.yakstretch-play-pause-btn {
+			display: none;
+		}
+	}
+
+
+}

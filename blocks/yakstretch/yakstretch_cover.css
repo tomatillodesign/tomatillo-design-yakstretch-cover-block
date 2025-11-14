@@ -1,0 +1,259 @@
+@layer components {
+
+
+    .yakstretch-cover-block {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .yakstretch-cover-block.is-editor-preview .yakstretch-image-wrapper {
+        position: relative;
+        display: block;
+        height: 100%;
+        min-height: 300px; /* Fallback for empty or dynamic content */
+        background-color: #000; /* optional fallback */
+    }
+
+    /* Background image rotator container */
+    .yakstretch-image-rotator {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background-size: cover;
+        background-position: center;
+        z-index: -2;
+        pointer-events: none;
+    }
+    
+    /* Individual fading layers */
+    .yakstretch-bg {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 1s ease;
+        will-change: opacity;
+        z-index: -2;
+    }
+    
+    /* Overlay layer (flat or gradient) */
+    .yakstretch-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .yakstretch-overlay-solid-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Flat overlay style via custom property */
+    .yakstretch-overlay-flat {
+        background-color: var(--yak-overlay-color);
+    }
+    
+    /* Gradient overlay style */
+    /* --- Directional Gradients --- */
+    .yakstretch-gradient-top-to-bottom {
+        background: linear-gradient(
+            to bottom,
+            var(--yak-overlay-color) 0%,
+            transparent 85%,
+            transparent 100%
+        );
+    }
+    
+    .yakstretch-gradient-bottom-to-top {
+        background: linear-gradient(
+            to top,
+            var(--yak-overlay-color) 0%,
+            transparent 85%,
+            transparent 100%
+        );
+    }
+    
+    .yakstretch-gradient-left-to-right {
+        background: linear-gradient(
+            to right,
+            var(--yak-overlay-color) 0%,
+            transparent 85%,
+            transparent 100%
+        );
+    }
+    
+    .yakstretch-gradient-right-to-left {
+        background: linear-gradient(
+            to left,
+            var(--yak-overlay-color) 0%,
+            transparent 85%,
+            transparent 100%
+        );
+    }
+    
+    .yakstretch-gradient-center-radial {
+        background: radial-gradient(
+            circle at center,
+            var(--yak-overlay-color) 0%,
+            transparent 85%,
+            transparent 100%
+        );
+    }
+    
+    .yakstretch-gradient-default {
+        background: linear-gradient(
+            to bottom,
+            var(--yak-overlay-color) 0%,
+            transparent 85%,
+            transparent 100%
+        );
+    }
+    
+
+    
+    
+    /* Content wrapper and positioning utilities */
+    .yakstretch-content {
+        position: relative;
+        z-index: 1;
+        padding: 2rem;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        min-height: inherit;
+    }
+    
+    /* Content alignment utility classes */
+    .yakstretch-content-top-left     { justify-content: flex-start; align-items: flex-start; text-align: left; }
+    .yakstretch-content-top-center   { justify-content: flex-start; align-items: center;     text-align: center; }
+    .yakstretch-content-top-right    { justify-content: flex-start; align-items: flex-end;   text-align: right; }
+    
+    .yakstretch-content-center-left  { justify-content: center;     align-items: flex-start; text-align: left; }
+    .yakstretch-content-center-center{ justify-content: center;     align-items: center;     text-align: center; }
+    .yakstretch-content-center-right { justify-content: center;     align-items: flex-end;   text-align: right; }
+    
+    .yakstretch-content-bottom-left  { justify-content: flex-end;   align-items: flex-start; text-align: left; }
+    .yakstretch-content-bottom-center{ justify-content: flex-end;   align-items: center;     text-align: center; }
+    .yakstretch-content-bottom-right { justify-content: flex-end;   align-items: flex-end;   text-align: right; }
+
+    
+    .yakstretch-content h2,
+    .yakstretch-content h3,
+    .yakstretch-content h4 {
+        margin-top: 0;
+    }
+
+    /* Play/Pause Button */
+    .yakstretch-play-pause-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.7);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+        outline: none;
+    }
+
+    /* Alternative positioning options - uncomment to use */
+    /* Bottom-right positioning */
+    /*
+    .yakstretch-play-pause-btn {
+        top: auto;
+        bottom: 1rem;
+        right: 1rem;
+    }
+    */
+
+    /* Bottom-center positioning */
+    /*
+    .yakstretch-play-pause-btn {
+        top: auto;
+        bottom: 1rem;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+    */
+
+    /* Center-right positioning */
+    /*
+    .yakstretch-play-pause-btn {
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+    }
+    */
+
+    .yakstretch-play-pause-btn:hover {
+        background: rgba(0, 0, 0, 0.9);
+        border-color: white;
+        transform: scale(1.1);
+    }
+
+    .yakstretch-play-pause-btn:focus {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+    }
+
+    .yakstretch-play-pause-btn:active {
+        transform: scale(0.95);
+    }
+
+    .yakstretch-btn-icon {
+        display: block;
+    }
+
+    .yakstretch-btn-icon::before {
+        content: "";
+        display: block;
+    }
+
+    .yakstretch-btn-text {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    /* Button states */
+    .yakstretch-play-pause-btn[data-yakstretch-pause="true"] .yakstretch-btn-icon::before {
+        content: "⏸";
+        font-size: 1.1em;
+    }
+
+    .yakstretch-play-pause-btn[data-yakstretch-pause="false"] .yakstretch-btn-icon::before {
+        content: "▶";
+        font-size: 0.9em;
+        margin-left: 0.1em; /* Slight adjustment to center the triangle */
+    }
+
+    /* Hide button when motion is reduced */
+    @media (prefers-reduced-motion: reduce) {
+        .yakstretch-play-pause-btn {
+            display: none;
+        }
+    }
+
+
+}
