@@ -4,7 +4,7 @@ Tags: background, cover block, acf, block editor, image rotator, overlay, gradie
 Requires at least: 6.0  
 Tested up to: 6.5  
 Requires PHP: 7.4  
-Stable tag: 1.1.1  
+Stable tag: 1.2.0  
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -17,31 +17,33 @@ YakStretch Cover Block is a custom ACF-powered Gutenberg block that renders rota
 Built for performance and flexibility, it includes:
 
 - Image rotation with fade timing
+- **NEW:** Video background support (media library or YouTube/Vimeo URLs)
 - Optional randomization
 - Flat or gradient overlay styles
 - 9-position content placement (top left, bottom center, etc.)
 - Adjustable min-height (desktop and mobile)
 - Full editor preview with live field sync
 - Theme-aware CSS layering and accessibility-conscious design
-- **NEW:** WCAG accessible play/pause button
-- **NEW:** AVIF/WebP image optimization integration
-- **NEW:** Enhanced security and performance
+- WCAG accessible play/pause button
+- AVIF/WebP image optimization integration
+- Enhanced security and performance
 
 This block is ideal for hero sections, promotional covers, or immersive full-bleed content.
 
 == Features ==
 
 * Rotating background images (fade in/out)
+* **NEW:** Video backgrounds (self-hosted or YouTube/Vimeo)
 * Random or sequential display
 * Flat or gradient overlays (with adjustable color and opacity)
 * Fully editable content (uses `InnerBlocks`)
 * Min-height settings for desktop and mobile
 * Editor preview with real-time ACF updates
 * Block alignment support (full, wide, etc.)
-* **NEW:** WCAG accessible play/pause button
-* **NEW:** AVIF/WebP image optimization (50-80% smaller files)
-* **NEW:** True WYSIWYG editor experience
-* **NEW:** Enhanced security and performance
+* WCAG accessible play/pause button
+* AVIF/WebP image optimization (50-80% smaller files)
+* True WYSIWYG editor experience
+* Enhanced security and performance
 
 == Installation ==
 
@@ -60,7 +62,7 @@ Yes, it uses ACF's block registration features which are part of ACF Pro.
 No — the image rotation requires JavaScript. If JavaScript is disabled, the first image in the gallery will remain visible.
 
 = Can I show video backgrounds instead of images? =  
-No — this block is image-focused. Use the default WP Cover block for videos.
+Yes! Version 1.2 adds full video background support. You can choose between image rotation or a single video background. Videos can be uploaded from your media library or embedded via YouTube/Vimeo URLs. The play/pause button controls video playback when a video is active.
 
 == Screenshots ==
 
@@ -70,6 +72,18 @@ No — this block is image-focused. Use the default WP Cover block for videos.
 4. Live rotating background on frontend
 
 == Changelog ==
+
+= 1.2 =
+* **NEW:** Video background support (media library or YouTube/Vimeo URLs)
+* **NEW:** Background type selector (Images or Video)
+* **NEW:** Video autoplay, loop, and mute controls
+* **NEW:** Video poster image support
+* **NEW:** Fallback image for video backgrounds (loading, errors, reduced motion)
+* **NEW:** Mobile video disable option with separate fallback image
+* **NEW:** Play/pause button now controls video playback when video is active
+* **IMPROVED:** Content alignment respects placement settings when image padding is set
+* **IMPROVED:** Overlay positioning works correctly with video backgrounds
+* **IMPROVED:** Editor preview shows static image for video backgrounds
 
 = 1.1 =
 * **NEW:** WCAG accessible play/pause button with motion preference support
@@ -91,6 +105,9 @@ No — this block is image-focused. Use the default WP Cover block for videos.
 * Editor preview with mutation-aware refresh
 
 == Upgrade Notice ==
+
+= 1.2 =
+Major update adding video background support. You can now use self-hosted videos or YouTube/Vimeo embeds as backgrounds, with full fallback image support and mobile optimization. Recommended for all users.
 
 = 1.1 =
 Major update with AVIF optimization, accessibility improvements, and enhanced editor experience. Recommended for all users.

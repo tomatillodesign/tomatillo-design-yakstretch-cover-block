@@ -7,6 +7,7 @@ A custom ACF-powered WordPress block that rotates background images with configu
 ## Features
 
 - ✅ Rotating background images (fade-in/fade-out)
+- 🎥 **NEW:** Video background support (self-hosted or YouTube/Vimeo)
 - 🎲 Optional randomization
 - 🎨 Overlay styles: flat or directional gradient
 - 🧭 9-position content placement (e.g. top-left, center-center, bottom-right)
@@ -14,10 +15,10 @@ A custom ACF-powered WordPress block that rotates background images with configu
 - 🧱 Full `InnerBlocks` support (add any block content)
 - 🖼 Editor preview with real-time ACF field sync
 - 🧩 Native block alignment support (`full`, `wide`, etc.)
-- ⏯️ **NEW:** WCAG accessible play/pause button
-- 🖼️ **NEW:** AVIF/WebP image optimization integration
-- 🎯 **NEW:** True WYSIWYG editor experience
-- 🔧 **NEW:** Enhanced security and performance
+- ⏯️ WCAG accessible play/pause button (controls images or video)
+- 🖼️ AVIF/WebP image optimization integration
+- 🎯 True WYSIWYG editor experience
+- 🔧 Enhanced security and performance
 
 ---
 
@@ -43,17 +44,35 @@ A custom ACF-powered WordPress block that rotates background images with configu
 
 The block exposes the following ACF fields in the sidebar:
 
+### Background Type
+- **Background Type** (`Images` or `Video`) - *NEW in v1.2*
+
+### Image Mode (when Background Type = Images)
 - **Gallery** (Image array)
 - **Randomize** (true/false)
-- **Content Placement** (`top left`, `center center`, `bottom right`, etc.)
 - **Delay** (ms between image switches)
 - **Fade Duration** (ms for crossfade)
+
+### Video Mode (when Background Type = Video) - *NEW in v1.2*
+- **Video Source** (`Media Library` or `URL`)
+- **Video File** (video upload from media library)
+- **Video URL** (YouTube or Vimeo URL)
+- **Video Poster** (optional preview image)
+- **Video Fallback Image** (shown while loading, on error, or with reduced motion)
+- **Mobile Fallback Image** (optional separate image for mobile devices)
+- **Video Autoplay** (true/false, default: true)
+- **Video Loop** (true/false, default: true)
+- **Video Muted** (true/false, default: true)
+- **Disable Video on Mobile** (true/false, shows fallback image on mobile)
+
+### Common Settings
+- **Content Placement** (`top left`, `center center`, `bottom right`, etc.)
 - **Overlay Style** (`flat`, `gradient`)
 - **Overlay Color** (supports alpha)
 - **Overlay Opacity** (0-100%)
 - **Min Height (Desktop)** (e.g. `500px` or `100vh`)
 - **Min Height (Mobile)** (e.g. `300px`)
-- **Show Play/Pause Button** (true/false) - *NEW in v1.1*
+- **Show Play/Pause Button** (true/false) - controls image rotation or video playback
 
 ---
 
@@ -63,10 +82,38 @@ The block exposes the following ACF fields in the sidebar:
 - JavaScript uses fade logic and image preloading to ensure smooth transitions
 - The first image loads instantly (no fade) for performance and accessibility
 - Editor-side logic handles background rendering via MutationObserver to support live ACF field updates
-- **NEW:** Integrates with Tomatillo Design AVIF Everywhere plugin for optimized image delivery
-- **NEW:** WCAG compliant play/pause controls with motion preference support
-- **NEW:** Enhanced security with proper input sanitization and output escaping
-- **NEW:** Improved performance with image caching and timer management
+- **Video Backgrounds**: Supports self-hosted videos (`<video>`) and external embeds (YouTube/Vimeo `<iframe>`)
+- **Video Fallbacks**: Automatic fallback image display for loading, errors, reduced motion, and mobile
+- **Privacy**: YouTube embeds use `youtube-nocookie.com` domain
+- Integrates with Tomatillo Design AVIF Everywhere plugin for optimized image delivery
+- WCAG compliant play/pause controls with motion preference support
+- Enhanced security with proper input sanitization and output escaping
+- Improved performance with image caching and timer management
+
+---
+
+## Version 1.2 Updates
+
+### 🎥 **Major New Feature: Video Backgrounds**
+- **Background Type Selection**: Choose between image rotation or single video background
+- **Video Sources**: Upload from media library or embed via YouTube/Vimeo URLs
+- **Video Controls**: Autoplay, loop, and mute options (all enabled by default)
+- **Poster Images**: Optional preview image before video loads
+- **Fallback Images**: Automatic fallback for loading states, errors, and reduced motion preferences
+- **Mobile Optimization**: Option to disable video on mobile with separate fallback image
+- **Play/Pause Integration**: Existing play/pause button now controls video playback
+
+### 🔧 **Technical Enhancements**
+- **Video Embedding**: Supports self-hosted `<video>` elements and YouTube/Vimeo iframes
+- **Privacy**: Uses `youtube-nocookie.com` for YouTube embeds
+- **Accessibility**: Respects `prefers-reduced-motion` with fallback images
+- **Editor Preview**: Static preview image for video backgrounds (no video playback in editor)
+- **Content Alignment**: Fixed content positioning to respect placement settings with image padding
+
+### 🎯 **Improvements**
+- **Overlay Positioning**: Fixed overlay and content width constraints
+- **Z-Index Layering**: Proper stacking order for video, fallback, overlay, and content
+- **Robust Field Reading**: Dynamic settings work correctly even when fields are conditionally hidden
 
 ---
 
