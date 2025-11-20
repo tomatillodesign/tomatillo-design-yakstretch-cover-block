@@ -242,5 +242,65 @@
 		}
 	}
 
+	/* Video wrapper in editor */
+	.yakstretch-video-wrapper {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		z-index: 0;
+		pointer-events: none;
+		overflow: hidden;
+	}
+
+	/* Video element in editor */
+	.yakstretch-video-element {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	/* Video embed in editor */
+	.yakstretch-video-embed {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+	}
+
+	.yakstretch-video-embed iframe {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		border: none;
+		pointer-events: none;
+	}
+
+	/* Fallback image for video in editor */
+	.yakstretch-video-fallback {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		z-index: 0;
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		height: 100%;
+		opacity: 1;
+	}
+
+	/* Hide video on mobile when disabled in editor */
+	@media (max-width: 767px) {
+		.yakstretch-video-wrapper[data-disable-mobile-video="1"] {
+			display: none;
+		}
+	}
+
 
 }

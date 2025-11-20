@@ -4,7 +4,7 @@ Plugin Name: Tomatillo Design ~ Yakstretch Cover Block
 Description: Custom block for displaying content on top of a rotating slideshow. Great for "hero" sections.
 Plugin URI: https://github.com/tomatillodesign/yak-card-deck
 Author: Tomatillo Design
-Version: 1.1.1
+Version: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -60,7 +60,7 @@ wp_register_script(
 	'yakstretch-script',
 	plugin_dir_url( __FILE__ ) . 'blocks/yakstretch/yakstretch.js',
 	wp_script_is( 'tomatillo-avif-swap', 'registered' ) ? [ 'tomatillo-avif-swap' ] : [],
-	'1.1',
+	'1.2',
 	true
 );
 add_action( 'enqueue_block_assets', function () {
@@ -90,7 +90,7 @@ add_action( 'enqueue_block_editor_assets', function() {
 		'yakstretch-editor-script',
 		plugin_dir_url( __FILE__ ) . 'blocks/yakstretch/editor.js',
 		[],
-		'1.1',
+		'1.2',
 		true
 	);
 });
@@ -106,11 +106,32 @@ add_action( 'acf/init', function() {
 		'fields' => [
 
 			[
+				'key' => 'field_yakstretch_background_type',
+				'label' => 'Background Type',
+				'name' => 'background_type',
+				'type' => 'select',
+				'choices' => [
+					'images' => 'Images (slideshow)',
+					'video' => 'Single Video',
+				],
+				'default_value' => 'images',
+				'instructions' => 'Choose between rotating image gallery or single background video.',
+			],
+			[
 				'key' => 'field_yakstretch_gallery',
 				'label' => 'Background Gallery',
 				'name' => 'gallery',
 				'type' => 'gallery',
 				'required' => 1,
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'images',
+						],
+					],
+				],
 			],
 			[
 				'key' => 'field_yakstretch_randomize',
@@ -119,6 +140,15 @@ add_action( 'acf/init', function() {
 				'type' => 'true_false',
 				'ui' => 1,
 				'default_value' => 0,
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'images',
+						],
+					],
+				],
 			],
 			[
 				'key' => 'field_yakstretch_position',
@@ -145,6 +175,15 @@ add_action( 'acf/init', function() {
 				'type' => 'number',
 				'default_value' => 6000,
 				'append' => 'ms',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'images',
+						],
+					],
+				],
 			],
 			[
 				'key' => 'field_yakstretch_fade',
@@ -153,6 +192,15 @@ add_action( 'acf/init', function() {
 				'type' => 'number',
 				'default_value' => 1000,
 				'append' => 'ms',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'images',
+						],
+					],
+				],
 			],
 			[
 				'key' => 'field_yakstretch_overlay_style',
@@ -284,7 +332,210 @@ add_action( 'acf/init', function() {
 				'type' => 'true_false',
 				'ui' => 1,
 				'default_value' => 0,
-				'instructions' => 'Display an accessible play/pause button for users to control image rotation. Respects "prefers-reduced-motion" setting.',
+				'instructions' => 'Display an accessible play/pause button for users to control image rotation or video playback. Respects "prefers-reduced-motion" setting.',
+			],
+			[
+				'key' => 'field_yakstretch_video_source',
+				'label' => 'Video Source',
+				'name' => 'video_source',
+				'type' => 'radio',
+				'choices' => [
+					'media_library' => 'Media Library',
+					'external_url' => 'External URL (YouTube/Vimeo)',
+				],
+				'default_value' => 'media_library',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_video_file',
+				'label' => 'Video File',
+				'name' => 'video_file',
+				'type' => 'file',
+				'return_format' => 'id',
+				'library' => 'all',
+				'min_size' => '',
+				'max_size' => '',
+				'mime_types' => 'mp4,webm,ogg',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+						[
+							'field' => 'field_yakstretch_video_source',
+							'operator' => '==',
+							'value' => 'media_library',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_video_poster',
+				'label' => 'Video Poster Image',
+				'name' => 'video_poster',
+				'type' => 'image',
+				'return_format' => 'id',
+				'preview_size' => 'medium',
+				'library' => 'all',
+				'instructions' => 'Poster image shown before video loads (HTML5 poster attribute). Optional but recommended.',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+						[
+							'field' => 'field_yakstretch_video_source',
+							'operator' => '==',
+							'value' => 'media_library',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_video_url',
+				'label' => 'Video URL',
+				'name' => 'video_url',
+				'type' => 'url',
+				'instructions' => 'Enter YouTube or Vimeo URL (e.g., https://www.youtube.com/watch?v=VIDEO_ID or https://vimeo.com/VIDEO_ID)',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+						[
+							'field' => 'field_yakstretch_video_source',
+							'operator' => '==',
+							'value' => 'external_url',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_video_fallback_image',
+				'label' => 'Fallback Image',
+				'name' => 'video_fallback_image',
+				'type' => 'image',
+				'return_format' => 'id',
+				'preview_size' => 'medium',
+				'library' => 'all',
+				'instructions' => 'Fallback image shown if video fails to load, on mobile (if disabled), or when reduced motion is enabled.',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_video_autoplay',
+				'label' => 'Autoplay Video',
+				'name' => 'video_autoplay',
+				'type' => 'true_false',
+				'ui' => 1,
+				'default_value' => 1,
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_video_loop',
+				'label' => 'Loop Video',
+				'name' => 'video_loop',
+				'type' => 'true_false',
+				'ui' => 1,
+				'default_value' => 1,
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_video_muted',
+				'label' => 'Mute Video',
+				'name' => 'video_muted',
+				'type' => 'true_false',
+				'ui' => 1,
+				'default_value' => 1,
+				'instructions' => 'Video must be muted for autoplay to work in most browsers.',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_disable_video_on_mobile',
+				'label' => 'Disable Video on Mobile',
+				'name' => 'disable_video_on_mobile',
+				'type' => 'true_false',
+				'ui' => 1,
+				'default_value' => 0,
+				'instructions' => 'Show fallback image instead of video on mobile devices (better for data usage and performance).',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+					],
+				],
+			],
+			[
+				'key' => 'field_yakstretch_mobile_fallback_image',
+				'label' => 'Mobile Fallback Image',
+				'name' => 'mobile_fallback_image',
+				'type' => 'image',
+				'return_format' => 'id',
+				'preview_size' => 'medium',
+				'library' => 'all',
+				'instructions' => 'Image shown on mobile devices when video is disabled. If not set, uses the general fallback image.',
+				'conditional_logic' => [
+					[
+						[
+							'field' => 'field_yakstretch_background_type',
+							'operator' => '==',
+							'value' => 'video',
+						],
+						[
+							'field' => 'field_yakstretch_disable_video_on_mobile',
+							'operator' => '==',
+							'value' => '1',
+						],
+					],
+				],
 			],
 
 		],
@@ -352,6 +603,108 @@ function yakstretch_get_optimized_image_url($attachment_id) {
 	}
 	
 	// No optimized version available
+	return false;
+}
+
+/**
+ * Get video URL from media library attachment ID
+ * 
+ * @param int $attachment_id WordPress attachment ID
+ * @return string|false Video URL or false if not available
+ */
+function yakstretch_get_video_url($attachment_id) {
+	if (empty($attachment_id) || !is_numeric($attachment_id)) {
+		return false;
+	}
+	
+	$video_url = wp_get_attachment_url($attachment_id);
+	return $video_url ? esc_url_raw($video_url) : false;
+}
+
+/**
+ * Parse YouTube or Vimeo URL and convert to embed format
+ * 
+ * @param string $url YouTube or Vimeo URL
+ * @param bool $autoplay Whether to autoplay (default: true)
+ * @param bool $loop Whether to loop (default: true)
+ * @param bool $muted Whether to mute (default: true)
+ * @return string|false Embed URL or false if URL is invalid
+ */
+function yakstretch_parse_video_url($url, $autoplay = true, $loop = true, $muted = true) {
+	if (empty($url)) {
+		return false;
+	}
+	
+	$url = esc_url_raw($url);
+	$video_id = '';
+	$provider = '';
+	
+	// YouTube detection
+	if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches)) {
+		$video_id = $matches[1];
+		$provider = 'youtube';
+	}
+	// Vimeo detection
+	elseif (preg_match('/(?:vimeo\.com\/)(?:.*\/)?(\d+)/', $url, $matches)) {
+		$video_id = $matches[1];
+		$provider = 'vimeo';
+	}
+	
+	if (empty($video_id) || empty($provider)) {
+		return false;
+	}
+	
+	// Build embed URL
+	if ($provider === 'youtube') {
+		// Use youtube-nocookie.com for privacy
+		$embed_url = 'https://www.youtube-nocookie.com/embed/' . $video_id;
+		$params = [];
+		
+		if ($autoplay) {
+			$params[] = 'autoplay=1';
+		}
+		if ($muted) {
+			$params[] = 'mute=1';
+		}
+		if ($loop) {
+			$params[] = 'loop=1';
+			// YouTube requires playlist parameter for loop to work
+			$params[] = 'playlist=' . $video_id;
+		}
+		$params[] = 'controls=0';
+		$params[] = 'modestbranding=1';
+		$params[] = 'playsinline=1';
+		$params[] = 'rel=0';
+		
+		if (!empty($params)) {
+			$embed_url .= '?' . implode('&', $params);
+		}
+		
+		return $embed_url;
+	} elseif ($provider === 'vimeo') {
+		$embed_url = 'https://player.vimeo.com/video/' . $video_id;
+		$params = [];
+		
+		if ($autoplay) {
+			$params[] = 'autoplay=1';
+		}
+		if ($muted) {
+			$params[] = 'muted=1';
+		}
+		if ($loop) {
+			$params[] = 'loop=1';
+		}
+		$params[] = 'background=1';
+		$params[] = 'controls=0';
+		$params[] = 'playsinline=1';
+		
+		if (!empty($params)) {
+			$embed_url .= '?' . implode('&', $params);
+		}
+		
+		return $embed_url;
+	}
+	
 	return false;
 }
 

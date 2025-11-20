@@ -1,4 +1,12 @@
 function yakstretchInit(container) {
+	const mode = container.dataset.yakstretchMode || 'images';
+	
+	if (mode === 'video') {
+		yakstretchInitVideo(container);
+		return;
+	}
+	
+	// Images mode - existing logic
 	const rotator = container.querySelector('.yakstretch-image-rotator');
 	if (!rotator) return;
 
@@ -109,7 +117,45 @@ function yakstretchInit(container) {
 function initPlayPauseButton(container, rotator, rotationTimers, getIsPaused, setIsPaused, rotate, delay, queue) {
 	const playPauseBtn = container.querySelector('.yakstretch-play-pause-btn');
 	if (!playPauseBtn) return;
+	
+	const mode = container.dataset.yakstretchMode || 'images';
+	
+	// Video mode play/pause
+	if (mode === 'video') {
+		const videoWrapper = container.querySelector('.yakstretch-video-wrapper');
+		if (!videoWrapper) return;
+		
+		const videoElement = videoWrapper.querySelector('video');
+		const videoEmbed = videoWrapper.querySelector('.yakstretch-video-embed iframe');
+		
+		playPauseBtn.addEventListener('click', () => {
+			if (videoElement) {
+				if (videoElement.paused) {
+					videoElement.play().catch(() => {
+						// Autoplay blocked, show fallback
+						showVideoFallback(container);
+					});
+					playPauseBtn.setAttribute('data-yakstretch-pause', 'true');
+					playPauseBtn.setAttribute('aria-label', 'Pause video');
+					playPauseBtn.setAttribute('title', 'Pause video');
+					playPauseBtn.querySelector('.yakstretch-btn-text').textContent = 'Pause';
+				} else {
+					videoElement.pause();
+					playPauseBtn.setAttribute('data-yakstretch-pause', 'false');
+					playPauseBtn.setAttribute('aria-label', 'Play video');
+					playPauseBtn.setAttribute('title', 'Play video');
+					playPauseBtn.querySelector('.yakstretch-btn-text').textContent = 'Play';
+				}
+			} else if (videoEmbed) {
+				// For external videos, we can't control playback directly
+				// Button is less useful here, but we'll keep it for consistency
+				console.log('External video play/pause not directly controllable');
+			}
+		});
+		return;
+	}
 
+	// Images mode play/pause (existing logic)
 	playPauseBtn.addEventListener('click', () => {
 		const currentPaused = getIsPaused();
 		setIsPaused(!currentPaused);
@@ -136,6 +182,142 @@ function initPlayPauseButton(container, rotator, rotationTimers, getIsPaused, se
 			rotationTimers.push(timer);
 		}
 	});
+}
+
+function yakstretchInitVideo(container) {
+	const videoWrapper = container.querySelector('.yakstretch-video-wrapper');
+	if (!videoWrapper) return;
+	
+	const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const disableOnMobile = videoWrapper.dataset.disableMobileVideo === '1';
+	const isMobile = window.innerWidth <= 767;
+	
+	// Check if we should show fallback instead of video
+	if (prefersReducedMotion || (disableOnMobile && isMobile)) {
+		showVideoFallback(container);
+		return;
+	}
+	
+	const fallbackEl = container.querySelector('.yakstretch-video-fallback');
+	const videoElement = videoWrapper.querySelector('video');
+	const videoEmbed = videoWrapper.querySelector('.yakstretch-video-embed iframe');
+	
+	// Handle self-hosted video
+	if (videoElement) {
+		// Set up video element styling
+		videoElement.style.width = '100%';
+		videoElement.style.height = '100%';
+		videoElement.style.objectFit = 'cover';
+		videoElement.style.position = 'absolute';
+		videoElement.style.top = '0';
+		videoElement.style.left = '0';
+		videoElement.style.zIndex = '-2';
+		
+		// Show fallback initially
+		if (fallbackEl) {
+			fallbackEl.style.opacity = '1';
+			fallbackEl.style.transition = 'opacity 0.5s ease';
+		}
+		
+		// Hide fallback when video starts playing
+		videoElement.addEventListener('playing', () => {
+			if (fallbackEl) {
+				fallbackEl.style.opacity = '0';
+				setTimeout(() => {
+					fallbackEl.style.display = 'none';
+				}, 500);
+			}
+		});
+		
+		// Show fallback if video fails to load
+		videoElement.addEventListener('error', () => {
+			showVideoFallback(container);
+		});
+		
+		// Check if video is blocked (still paused after load attempt)
+		videoElement.addEventListener('loadeddata', () => {
+			setTimeout(() => {
+				if (videoElement.paused && !videoElement.ended) {
+					// Video is likely blocked by browser
+					showVideoFallback(container);
+				}
+			}, 1000);
+		});
+		
+		// Try to play video
+		if (videoWrapper.dataset.videoAutoplay === '1') {
+			videoElement.play().catch(() => {
+				// Autoplay blocked, show fallback
+				showVideoFallback(container);
+			});
+		}
+	}
+	
+	// Handle external video (YouTube/Vimeo)
+	if (videoEmbed) {
+		// Set up iframe styling
+		videoEmbed.style.width = '100%';
+		videoEmbed.style.height = '100%';
+		videoEmbed.style.position = 'absolute';
+		videoEmbed.style.top = '0';
+		videoEmbed.style.left = '0';
+		videoEmbed.style.border = 'none';
+		videoEmbed.style.pointerEvents = 'none';
+		
+		// Show fallback initially
+		if (fallbackEl) {
+			fallbackEl.style.opacity = '1';
+			fallbackEl.style.transition = 'opacity 0.5s ease';
+		}
+		
+		// Hide fallback when iframe loads (approximate detection)
+		videoEmbed.addEventListener('load', () => {
+			setTimeout(() => {
+				if (fallbackEl) {
+					fallbackEl.style.opacity = '0';
+					setTimeout(() => {
+						fallbackEl.style.display = 'none';
+					}, 500);
+				}
+			}, 2000); // Give iframe time to start playing
+		});
+		
+		// Show fallback if iframe fails to load
+		videoEmbed.addEventListener('error', () => {
+			showVideoFallback(container);
+		});
+	}
+	
+	// Initialize play/pause button for video
+	initPlayPauseButton(container, null, [], () => false, () => {}, null, 0, []);
+}
+
+function showVideoFallback(container) {
+	const videoWrapper = container.querySelector('.yakstretch-video-wrapper');
+	const fallbackEl = container.querySelector('.yakstretch-video-fallback');
+	const videoElement = videoWrapper?.querySelector('video');
+	const videoEmbed = videoWrapper?.querySelector('.yakstretch-video-embed iframe');
+	
+	// Hide video
+	if (videoWrapper) {
+		videoWrapper.style.display = 'none';
+	}
+	if (videoElement) {
+		videoElement.pause();
+	}
+	
+	// Show fallback
+	if (fallbackEl) {
+		fallbackEl.style.display = 'block';
+		fallbackEl.style.opacity = '1';
+		
+		// Use mobile fallback if on mobile and available
+		const isMobile = window.innerWidth <= 767;
+		const mobileFallbackUrl = fallbackEl.dataset.mobileFallbackUrl;
+		if (isMobile && mobileFallbackUrl) {
+			fallbackEl.style.backgroundImage = `url('${mobileFallbackUrl}')`;
+		}
+	}
 }
 
 

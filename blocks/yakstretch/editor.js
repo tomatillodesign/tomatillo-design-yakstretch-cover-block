@@ -4,6 +4,14 @@ function applyYakstretchPreviewBackground(blockEl) {
 		return;
 	}
 
+	const mode = blockEl.dataset.yakstretchMode || 'images';
+	
+	if (mode === 'video') {
+		applyYakstretchPreviewVideo(blockEl);
+		return;
+	}
+
+	// Images mode - existing logic
 	const rotator = blockEl.querySelector('.yakstretch-image-rotator');
 	if (!rotator) {
 		return;
@@ -103,6 +111,69 @@ function clearEditorRotationTimers(bgDiv) {
 	bgDiv._isRotating = false;
 }
 
+function applyYakstretchPreviewVideo(blockEl) {
+	const inner = blockEl.querySelector('.yakstretch-cover-block');
+	if (!inner) {
+		return;
+	}
+
+	const videoWrapper = blockEl.querySelector('.yakstretch-video-wrapper');
+	if (!videoWrapper) {
+		return;
+	}
+
+	// Get poster or fallback image URL
+	const posterUrl = videoWrapper.dataset.videoPoster || '';
+	const fallbackEl = blockEl.querySelector('.yakstretch-video-fallback');
+	const fallbackUrl = fallbackEl?.dataset.fallbackUrl || fallbackEl?.style.backgroundImage?.match(/url\(['"]?([^'"]+)['"]?\)/)?.[1] || '';
+	
+	// Use poster if available, otherwise fallback, otherwise placeholder
+	const imageUrl = posterUrl || fallbackUrl;
+	
+	if (!imageUrl) {
+		// Show placeholder
+		let bgDiv = inner.querySelector('.yakstretch-editor-bg');
+		if (!bgDiv) {
+			bgDiv = document.createElement('div');
+			bgDiv.className = 'yakstretch-editor-bg';
+			bgDiv.style.position = 'absolute';
+			bgDiv.style.inset = '0';
+			bgDiv.style.zIndex = '0';
+			bgDiv.style.pointerEvents = 'none';
+			inner.prepend(bgDiv);
+		}
+		bgDiv.style.backgroundImage = 'none';
+		bgDiv.style.backgroundColor = '#333';
+		bgDiv.style.display = 'flex';
+		bgDiv.style.alignItems = 'center';
+		bgDiv.style.justifyContent = 'center';
+		bgDiv.style.color = '#fff';
+		bgDiv.style.fontSize = '0.875rem';
+		bgDiv.textContent = 'Video background (no preview image)';
+		return;
+	}
+
+	// Show poster/fallback image
+	let bgDiv = inner.querySelector('.yakstretch-editor-bg');
+	if (!bgDiv) {
+		bgDiv = document.createElement('div');
+		bgDiv.className = 'yakstretch-editor-bg';
+		bgDiv.style.position = 'absolute';
+		bgDiv.style.inset = '0';
+		bgDiv.style.zIndex = '0';
+		bgDiv.style.pointerEvents = 'none';
+		bgDiv.style.willChange = 'opacity';
+		inner.prepend(bgDiv);
+	}
+
+	bgDiv.style.backgroundImage = `url("${imageUrl}")`;
+	bgDiv.style.backgroundSize = 'cover';
+	bgDiv.style.backgroundPosition = 'center';
+	bgDiv.style.opacity = '1';
+	bgDiv.style.display = 'block';
+	bgDiv.textContent = '';
+}
+
 
 // Initial pass for already-rendered blocks
 document.querySelectorAll('.wp-block-yak-yakstretch-cover').forEach(applyYakstretchPreviewBackground);
@@ -120,20 +191,30 @@ function debounce(fn, delay = 100) {
 // --- Debounced background applier ---
 const debouncedApply = debounce((blockEl) => {
 	if (blockEl) {
-		applyYakstretchPreviewBackground(blockEl);
+		const mode = blockEl.dataset.yakstretchMode || 'images';
+		if (mode === 'video') {
+			applyYakstretchPreviewVideo(blockEl);
+		} else {
+			applyYakstretchPreviewBackground(blockEl);
+		}
 	}
 }, 100);
 
 // --- Settings change handler ---
 function handleSettingsChange(blockEl) {
 	if (blockEl) {
+		const mode = blockEl.dataset.yakstretchMode || 'images';
 		// Clear any existing rotation timers and indicators
 		const bgDiv = blockEl.querySelector('.yakstretch-editor-bg');
 		if (bgDiv) {
 			clearEditorRotationTimers(bgDiv);
 		}
 		// Reapply background with new settings
-		applyYakstretchPreviewBackground(blockEl);
+		if (mode === 'video') {
+			applyYakstretchPreviewVideo(blockEl);
+		} else {
+			applyYakstretchPreviewBackground(blockEl);
+		}
 	}
 }
 
@@ -164,7 +245,8 @@ const observer = new MutationObserver(mutations => {
 			if (block) {
 				// Check if it's a settings change (data attributes)
 				if (mutation.type === 'attributes' && mutation.attributeName && 
-					['data-images', 'data-delay', 'data-fade', 'data-randomize'].includes(mutation.attributeName)) {
+					['data-images', 'data-delay', 'data-fade', 'data-randomize', 'data-yakstretch-mode', 
+					 'data-video-poster', 'data-video-fallback-url', 'data-mobile-fallback-url'].includes(mutation.attributeName)) {
 					debouncedSettingsChange(block);
 				} else {
 					debouncedApply(block);
@@ -179,5 +261,5 @@ observer.observe(document.body, {
 	childList: true,
 	attributes: true,
 	characterData: true,
-	attributeFilter: ['data-images'],
+	attributeFilter: ['data-images', 'data-yakstretch-mode', 'data-video-poster', 'data-video-fallback-url', 'data-mobile-fallback-url'],
 });
