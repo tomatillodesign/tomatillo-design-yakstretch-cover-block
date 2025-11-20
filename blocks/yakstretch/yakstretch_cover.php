@@ -357,20 +357,28 @@ $dynamic_preview_style = '';
 if ( $is_preview ) {
 	$selector = '#' . $block_id;
 	$image_offset = $image_padding_left > 0 ? 'calc(100% - ' . $image_padding_left_unit . ')' : '100%';
+	
+	// Get video preview image URL
+	$video_preview_url = '';
+	if ( $background_type === 'video' ) {
+		$video_preview_url = $video_data['poster_url'] ?: $video_data['fallback_url'] ?: '';
+	}
 
 	$dynamic_preview_style = "
 
+		{$selector} {
+			position: relative;
+			background: none;
+		}";
+	
+	if ( $background_type === 'images' ) {
+		$dynamic_preview_style .= "
 		#{$block_id} .yakstretch-image-wrapper {
 			outline: 2px solid magenta;
 		}
 		#{$block_id} .yakstretch-image-rotator {
 			outline: 2px dashed cyan;
 			background-color: rgba(0, 255, 255, 0.1);
-		}
-
-		{$selector} {
-			position: relative;
-			background: none;
 		}
 		{$selector} .yakstretch-image-wrapper::before {
 			content: '';
@@ -400,8 +408,27 @@ if ( $is_preview ) {
 			top: 0;
 			right: 0;
 			z-index: -2;
+		}";
+	} elseif ( $background_type === 'video' ) {
+		// Hide video elements in editor preview (we show poster/fallback via editor.js)
+		$dynamic_preview_style .= "
+		{$selector} .yakstretch-video-wrapper {
+			display: none;
 		}
-	";
+		{$selector} .yakstretch-video-fallback {
+			display: none;
+		}";
+		if ( $video_preview_url ) {
+			$dynamic_preview_style .= "
+		{$selector} .yakstretch-editor-bg {
+			background-image: url('<?php echo esc_url($video_preview_url); ?>');
+			background-size: cover;
+			background-position: center;
+			width: {$image_offset};
+			right: 0;
+		}";
+		}
+	}
 }
 
 
@@ -472,14 +499,14 @@ if ( $is_preview ) {
 		
 		<?php if ($active_fallback_url) : ?>
 			<div class="yakstretch-video-fallback"
-				style="background-image: url('<?php echo esc_url($active_fallback_url); ?>'); width: <?php echo esc_attr($image_width_unit); ?>; right: 0;"
+				style="background-image: url('<?php echo esc_url($active_fallback_url); ?>'); width: <?php echo esc_attr($image_width_unit); ?>; right: 0; <?php echo $is_preview ? 'display: none;' : ''; ?>"
 				data-fallback-url="<?php echo esc_attr($video_data['fallback_url']); ?>"
 				data-mobile-fallback-url="<?php echo esc_attr($video_data['mobile_fallback_url']); ?>">
 			</div>
 		<?php endif; ?>
 		
 		<div class="yakstretch-video-wrapper"
-			style="width: <?php echo esc_attr($image_width_unit); ?>; right: 0;"
+			style="width: <?php echo esc_attr($image_width_unit); ?>; right: 0; <?php echo $is_preview ? 'display: none;' : ''; ?>"
 			data-video-source="<?php echo esc_attr($video_data['source']); ?>"
 			data-video-url="<?php echo esc_attr($video_data['url']); ?>"
 			data-video-embed-url="<?php echo esc_attr($video_data['embed_url']); ?>"
@@ -491,10 +518,12 @@ if ( $is_preview ) {
 			
 			<?php if ($video_data['source'] === 'media_library' && $video_data['url']) : ?>
 				<video
-					<?php echo $video_data['autoplay'] ? 'autoplay' : ''; ?>
-					<?php echo $video_data['loop'] ? 'loop' : ''; ?>
-					<?php echo $video_data['muted'] ? 'muted' : ''; ?>
-					playsinline
+					<?php if (!$is_preview) : ?>
+						<?php echo $video_data['autoplay'] ? 'autoplay' : ''; ?>
+						<?php echo $video_data['loop'] ? 'loop' : ''; ?>
+						<?php echo $video_data['muted'] ? 'muted' : ''; ?>
+						playsinline
+					<?php endif; ?>
 					<?php if ($video_data['poster_url']) : ?>
 						poster="<?php echo esc_url($video_data['poster_url']); ?>"
 					<?php endif; ?>
@@ -504,13 +533,17 @@ if ( $is_preview ) {
 				</video>
 			<?php elseif ($video_data['source'] === 'external_url' && $video_data['embed_url']) : ?>
 				<div class="yakstretch-video-embed">
-					<iframe
-						src="<?php echo esc_url($video_data['embed_url']); ?>"
-						frameborder="0"
-						allow="autoplay; encrypted-media"
-						allowfullscreen
-						loading="lazy">
-					</iframe>
+					<?php if (!$is_preview) : ?>
+						<iframe
+							src="<?php echo esc_url($video_data['embed_url']); ?>"
+							frameborder="0"
+							allow="autoplay; encrypted-media"
+							allowfullscreen
+							loading="lazy">
+						</iframe>
+					<?php else : ?>
+						<!-- Video iframe hidden in editor preview -->
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -534,7 +567,8 @@ if ( $is_preview ) {
 		$content_width_style = '';
 		if ( $image_padding_left > 0 ) {
 			// Content should stay within the overlay area (left side)
-			$content_width_style = 'max-width: ' . $image_padding_left_unit . ';';
+			// Use width instead of max-width so it respects the constraint and alignment
+			$content_width_style = 'width: ' . $image_padding_left_unit . ';';
 		}
 	?>
 	<div class="yakstretch-content <?php echo esc_attr($placement_class); ?>"

@@ -122,13 +122,25 @@ function applyYakstretchPreviewVideo(blockEl) {
 		return;
 	}
 
+	// Hide actual video elements in editor (we'll show preview image instead)
+	if (videoWrapper) {
+		videoWrapper.style.display = 'none';
+	}
+	const fallbackEl = blockEl.querySelector('.yakstretch-video-fallback');
+	if (fallbackEl) {
+		fallbackEl.style.display = 'none';
+	}
+
 	// Get poster or fallback image URL
 	const posterUrl = videoWrapper.dataset.videoPoster || '';
-	const fallbackEl = blockEl.querySelector('.yakstretch-video-fallback');
 	const fallbackUrl = fallbackEl?.dataset.fallbackUrl || fallbackEl?.style.backgroundImage?.match(/url\(['"]?([^'"]+)['"]?\)/)?.[1] || '';
 	
 	// Use poster if available, otherwise fallback, otherwise placeholder
 	const imageUrl = posterUrl || fallbackUrl;
+	
+	// Get width constraint from video wrapper
+	const wrapperWidth = videoWrapper.style.width || window.getComputedStyle(videoWrapper).width;
+	const wrapperRight = videoWrapper.style.right || window.getComputedStyle(videoWrapper).right;
 	
 	if (!imageUrl) {
 		// Show placeholder
@@ -137,7 +149,8 @@ function applyYakstretchPreviewVideo(blockEl) {
 			bgDiv = document.createElement('div');
 			bgDiv.className = 'yakstretch-editor-bg';
 			bgDiv.style.position = 'absolute';
-			bgDiv.style.inset = '0';
+			bgDiv.style.top = '0';
+			bgDiv.style.bottom = '0';
 			bgDiv.style.zIndex = '0';
 			bgDiv.style.pointerEvents = 'none';
 			inner.prepend(bgDiv);
@@ -150,6 +163,10 @@ function applyYakstretchPreviewVideo(blockEl) {
 		bgDiv.style.color = '#fff';
 		bgDiv.style.fontSize = '0.875rem';
 		bgDiv.textContent = 'Video background (no preview image)';
+		if (wrapperWidth && wrapperWidth !== '100%') {
+			bgDiv.style.width = wrapperWidth;
+			bgDiv.style.right = wrapperRight || '0';
+		}
 		return;
 	}
 
@@ -159,7 +176,8 @@ function applyYakstretchPreviewVideo(blockEl) {
 		bgDiv = document.createElement('div');
 		bgDiv.className = 'yakstretch-editor-bg';
 		bgDiv.style.position = 'absolute';
-		bgDiv.style.inset = '0';
+		bgDiv.style.top = '0';
+		bgDiv.style.bottom = '0';
 		bgDiv.style.zIndex = '0';
 		bgDiv.style.pointerEvents = 'none';
 		bgDiv.style.willChange = 'opacity';
@@ -172,11 +190,30 @@ function applyYakstretchPreviewVideo(blockEl) {
 	bgDiv.style.opacity = '1';
 	bgDiv.style.display = 'block';
 	bgDiv.textContent = '';
+	bgDiv.style.left = 'auto';
+	
+	// Apply width constraint from video wrapper
+	if (wrapperWidth && wrapperWidth !== '100%' && wrapperWidth !== 'auto') {
+		bgDiv.style.width = wrapperWidth;
+		bgDiv.style.right = wrapperRight || '0';
+		bgDiv.style.left = 'auto';
+	} else {
+		bgDiv.style.width = '100%';
+		bgDiv.style.right = 'auto';
+		bgDiv.style.left = '0';
+	}
 }
 
 
 // Initial pass for already-rendered blocks
-document.querySelectorAll('.wp-block-yak-yakstretch-cover').forEach(applyYakstretchPreviewBackground);
+document.querySelectorAll('.wp-block-yak-yakstretch-cover').forEach((blockEl) => {
+	const mode = blockEl.dataset.yakstretchMode || 'images';
+	if (mode === 'video') {
+		applyYakstretchPreviewVideo(blockEl);
+	} else {
+		applyYakstretchPreviewBackground(blockEl);
+	}
+});
 
 // MutationObserver to catch live updates
 // --- Debounce utility ---
